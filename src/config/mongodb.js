@@ -1,13 +1,11 @@
-const MONGODB_URI = 'mongodb+srv://vankietdev:23hSf6FzY0vmXrKr@cluster0-vankietdev.ralut28.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0-VanKietDev'
-const DATABASE_NAME = 'trello-vankietdev-mern-stack'
-
 import { MongoClient, ServerApiVersion } from 'mongodb'
+import { env } from '~/config/environment'
 
 // Khởi tạo một đối tượng trelloDatabaseInstance ban đầu là null (vì chúng ta chưa có connect)
 let trelloDatabaseInstance = null
 
 // Khởi tạo một đối tượng mongoClientInstance để connect tới MongoDB
-const mongoClientInstance = new MongoClient(MONGODB_URI, {
+const mongoClientInstance = new MongoClient(env.MONGODB_URI, {
 // Lưu ý: cái serverApi có từ phiên bản MongoDB 5.0.0 trở lên, có thể không cần dùng nó, còn nếu dùng nó là chúng
 // ta sẽ chỉ định một cái Stable API Version của MongoDB
 // Đọc thêm ở đây: https://www.mongodb.com/docs/drivers/node/current/fundamentals/stable-api/
@@ -24,7 +22,14 @@ export const CONNECT_DB = async () => {
   await mongoClientInstance.connect()
 
   // Kết nối thành công thì lấy ra Database theo tên và gán ngược nó lại vào biến trelloDatabaseInstance ở trên
-  trelloDatabaseInstance = mongoClientInstance.db(DATABASE_NAME)
+  trelloDatabaseInstance = mongoClientInstance.db(env.DATABASE_NAME)
+}
+
+// Đóng keets nối tới Database khi cần
+export const CLOSE_DB = async () => {
+  // eslint-disable-next-line no-console
+  console.log('Code chay vao cho Close nay')
+  await mongoClientInstance.close()
 }
 
 // Function GET_DB (không async) này có nhiệm vụ export ra cái Trello Database Instance sau khi đã connect thành
