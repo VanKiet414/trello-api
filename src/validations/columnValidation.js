@@ -18,6 +18,32 @@ const createNew = async (req, res, next) => {
   }
 }
 
+const update = async (req, res, next) => {
+  // Lưu ý không dùng require trong trường hợp Update
+  const correctCondition = Joi.object({
+    // Nếu cần làm thêm tính năng di chuyển Column sang Board khác thì mới thêm validate
+    // boardId: Joi.string().pattern(OBJECT_ID_RULE).messages(OBJECT_ID_RULE_MESSAGE),
+    title: Joi.string().min(3).max(50).trim().strict(),
+    cardOrderIds: Joi.array().items(
+      Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
+    )
+  })
+
+  try {
+    // Chỉ định abortEarly: false để trường hợp có nhiều lỗi thì sẽ trả về tất cả các lỗi thay vì dừng lại ở lỗi đầu tiên
+    // Đối với trường hợp update, cho phép Unknown để không cần đẩy một số field lên
+    await correctCondition.validateAsync(req.body, {
+      abortEarly: false,
+      allowUnknown: true
+    })
+
+    next()
+  } catch (error) {
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message))
+  }
+}
+
 export const columnValidation = {
-  createNew
+  createNew,
+  update
 }

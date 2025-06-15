@@ -53,15 +53,15 @@ const getDetails = async (boardId) => {
   } catch (error) { throw error }
 }
 
-const update = async (boardId, reqbody) => {
+const update = async (boardId, reqBody) => {
   try {
     const updateData = {
-      ...reqbody,
+      ...reqBody,
       updatedAt: Date.now()
     }
-    const updatedData = await boardModel.update(boardId, updateData)
+    const updatedBoard = await boardModel.update(boardId, updateData)
 
-    return updatedData
+    return updatedBoard
   } catch (error) { throw error }
 }
 
