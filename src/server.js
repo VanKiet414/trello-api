@@ -26,9 +26,18 @@ const START_SERVER = () => {
   // Middleware xử lý lỗi tập trung
   app.use(errorHandlingMiddleware)
 
-  app.listen(env.APP_PORT, env.APP_HOST, () => {
-    console.log(`3. Hi ${env.AUTHOR}, Back-end Server is running successfully at Host: http://${env.APP_HOST}:${env.APP_PORT}`)
-  })
+  // Môi trường Production (đang sp render.com)
+  if (env.BUILD_MODE === 'production') {
+    app.listen(process.env.PORT, () => {
+      console.log(`3. Production: Hi ${env.AUTHOR}, Back-end Server is running successfully at Port: http://${process.env.PORT}`)
+    })
+  } else {
+    // Môi trường local Dev
+    app.listen(env.LOCAL_DEV_APP_PORT, env.LOCAL_DEV_APP_HOST, () => {
+      console.log(`3. Local DEV: Hi ${env.AUTHOR}, Back-end Server is running successfully at Host: http://${env.LOCAL_DEV_APP_HOST}:${env.LOCAL_DEV_APP_PORT}`)
+    })
+  }
+
 
   // Thực hiện các tác vụ cleanup trước khi dừng server
   // Đọc thêm ở đây: https://stackoverflow.com/q/14031763/8324172
