@@ -75,7 +75,7 @@ const update = async (userId, updateData) => {
   } catch (error) { throw new Error(error) }
 }
 
-export {
+export const userModel = {
   USER_COLLECTION_NAME,
   USER_COLLECTION_SCHEMA,
   USER_ROLES,

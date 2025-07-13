@@ -1,10 +1,13 @@
-// import { userModel } from '~/models/userModel'
-import * as userModel from '~/models/userModel'
+import { userModel } from '~/models/userModel'
 import ApiError from '~/utils/ApiError'
 import { StatusCodes } from 'http-status-codes'
 import bcrypt from 'bcryptjs'
 import { v4 as uuidv4 } from 'uuid'
 import { pickUser } from '~/utils/formatters'
+import { WEBSITE_DOMAIN } from '~/utils/constants'
+/* import { BrevoProvider } from '~/providers/BrevoProvider' */
+import { ResendProvider } from '~/providers/ResendProvider'
+
 
 const createNew = async (reqBody) => {
   try {
@@ -30,6 +33,15 @@ const createNew = async (reqBody) => {
     const getNewUser = await userModel.findOneById(createdUser.insertedId)
 
     // Gửi email cho người dùng xác thực tài khoản (bước sau...)
+    const verificationLink = `${WEBSITE_DOMAIN}/account/verification?email=${getNewUser.email}&token=${getNewUser.verifyToken}`
+    const customSubject = 'Trello Advanced - Xác thực tài khoản của bạn'
+    const htmlContent = `
+      <h3>Here is your verification link:</h3>
+      <h3>${verificationLink}</h3>
+      <h3>Sincerely,<br/> - VanKietDev - Một Lập Trình Viên - </h3>
+    `
+    // Gọi tới Provider gửi email
+    await ResendProvider.sendEmail(getNewUser.email, customSubject, htmlContent)
 
     // return trả về dữ liệu cho phía Controller
     return pickUser(getNewUser)
