@@ -7,14 +7,23 @@ import { CONNECT_DB, CLOSE_DB } from '~/config/mongodb'
 import { env } from '~/config/environment'
 import { APIs_V1 } from '~/routes/v1'
 import { errorHandlingMiddleware } from '~/middlewares/errorHandlingMiddleware'
+import cookieParser from 'cookie-parser'
 
 
 const START_SERVER = () => {
   const app = express()
 
+  // Fix cái vụ Cache From disk của ExpressJS
+  // https://stackoverflow.com/a/53240717/8324172
+  app.use((req, res, next) => {
+    res.set('Cache-Control', 'no-store')
+    next()
+  })
+
+  // Cấu hình Cookie Parser
+  app.use(cookieParser())
+
   // Xử lý CORS
-  // CORS là viết tắt của Cross-Origin Resource Sharing, là một cơ chế bảo mật của trình duyệt web
-  // cho phép hoặc từ chối các yêu cầu từ các nguồn gốc khác nhau (cross-origin requests).
   app.use(cors(corsOptions))
 
   // Enable req.body json data
