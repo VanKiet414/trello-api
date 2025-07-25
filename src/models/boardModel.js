@@ -225,3 +225,4 @@ export const boardModel = {
   pullColumnOrderIds,
   getBoards
 }
+
