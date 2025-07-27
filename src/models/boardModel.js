@@ -5,7 +5,7 @@ import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 import { BOARD_TYPES } from '~/utils/constants'
 import { columnModel } from '~/models/columnModel'
 import { cardModel } from '~/models/cardModel'
-import { userModel } from './userModel'
+import { userModel } from '~/models/userModel'
 import { pagingSkipValue } from '~/utils/algorithms'
 
 // Define Collection (Name & Schema)
@@ -101,7 +101,7 @@ const getDetails = async (userId, boardId) => {
           as: 'owners',
           // pipeline trong lookup là để xử lý một hoặc nhiều luồng cần thiết
           // $project để chỉ định vài field không muốn lấy về bằng cách gán nó giá trị 0
-          pipeline: [{ $project: { password: 0, verifyToken: 0 } }]
+          pipeline: [{ $project: { 'password': 0, 'verifyToken': 0 } }]
         }
       },
       {
@@ -110,7 +110,7 @@ const getDetails = async (userId, boardId) => {
           localField: 'memberIds',
           foreignField: '_id',
           as: 'members',
-          pipeline: [{ $project: { password: 0, verifyToken: 0 } }]
+          pipeline: [{ $project: { 'password': 0, 'verifyToken': 0 } }]
         }
       }
     ]).toArray()
