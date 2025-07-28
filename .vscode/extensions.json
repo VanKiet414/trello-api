@@ -1,6 +1,7 @@
 {
   "recommendations": [
     "danielsanmedium.dscodegpt",
-    "github.copilot"
+    "github.copilot",
+    "github.copilot-chat"
   ]
 }

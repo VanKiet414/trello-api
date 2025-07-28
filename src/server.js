@@ -8,7 +8,11 @@ import { env } from '~/config/environment'
 import { APIs_V1 } from '~/routes/v1'
 import { errorHandlingMiddleware } from '~/middlewares/errorHandlingMiddleware'
 import cookieParser from 'cookie-parser'
-
+// Xử lý socket real-time với gói socket.io
+// https://socket.io/get-started/chat/#integrating-socketio
+import http from 'http'
+import socketIo from 'socket.io'
+import { inviteUserToBoardSocket } from '~/sockets/inviteUserToBoardSocket'
 
 const START_SERVER = () => {
   const app = express()
@@ -35,14 +39,25 @@ const START_SERVER = () => {
   // Middleware xử lý lỗi tập trung
   app.use(errorHandlingMiddleware)
 
+  // Tạo một cái server mới bọc thằng app của express để làm real-time với socket.io
+  const server = http.createServer(app)
+  // Khởi tạo biến io với server và cors
+  const io = socketIo(server, { cors: corsOptions })
+  io.on('connection', (socket) => {
+    // Gọi các socket tùy theo tính năng ở đây
+    inviteUserToBoardSocket(socket)
+  })
+
   // Môi trường Production (đang sp render.com)
   if (env.BUILD_MODE === 'production') {
-    app.listen(process.env.PORT, () => {
+    // Dùng server.listen thay vì app.listen vì lúc này server đã bao gồm express app và đã config socket.io
+    server.listen(process.env.PORT, () => {
       console.log(`3. Production: Hi ${env.AUTHOR}, Back-end Server is running successfully at Port: http://${process.env.PORT}`)
     })
   } else {
     // Môi trường local Dev
-    app.listen(env.LOCAL_DEV_APP_PORT, env.LOCAL_DEV_APP_HOST, () => {
+    // Dùng server.listen thay vì app.listen vì lúc này server đã bao gồm express app và đã config socket.io
+    server.listen(env.LOCAL_DEV_APP_PORT, env.LOCAL_DEV_APP_HOST, () => {
       console.log(`3. Local DEV: Hi ${env.AUTHOR}, Back-end Server is running successfully at Host: http://${env.LOCAL_DEV_APP_HOST}:${env.LOCAL_DEV_APP_PORT}`)
     })
   }
