@@ -51,13 +51,14 @@ const getBoards = async (req, res, next) => {
   try {
     const userId = req.jwtDecoded._id
     // page va itemsPerPage duoc truyen vao trong query url tu phia FE nen BE se lay thong qua req.query
-    const { page, itemsPerPage } = req.query
-    const results = await boardService.getBoards(userId, page, itemsPerPage)
+    const { page, itemsPerPage, q } = req.query
+    const queryFilters = q
+    // console.log(queryFilters)
+
+    const results = await boardService.getBoards(userId, page, itemsPerPage, queryFilters)
 
     res.status(StatusCodes.OK).json(results)
-  } catch (error) {
-    next(error)
-  }
+  } catch (error) { next(error) }
 }
 
 export const boardController = {
