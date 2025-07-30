@@ -14,9 +14,7 @@ const verifyAccount = async (req, res, next) => {
   try {
     const result = await userService.verifyAccount(req.body)
     res.status(StatusCodes.OK).json(result)
-  } catch (error) {
-    next(error)
-  }
+  } catch (error) { next(error) }
 }
 
 const login = async (req, res, next) => {
@@ -34,13 +32,15 @@ const login = async (req, res, next) => {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
-      maxAge: ms('14 days')
+      maxAge: ms('14 days'),
+      path: '/' // Đảm bảo cookie dùng cho mọi route
     })
     res.cookie('refreshToken', result.refreshToken, {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
-      maxAge: ms('14 days')
+      maxAge: ms('14 days'),
+      path: '/'
     })
 
     res.status(StatusCodes.OK).json(result)
@@ -52,8 +52,8 @@ const login = async (req, res, next) => {
 const logout = async (req, res, next) => {
   try {
     // Xóa cookie – đơn giản là làm ngược lại so với việc gán cookie
-    res.clearCookie('accessToken')
-    res.clearCookie('refreshToken')
+    res.clearCookie('accessToken', { path: '/' })
+    res.clearCookie('refreshToken', { path: '/' })
 
     res.status(StatusCodes.OK).json({ loggedOut: true })
   } catch (error) { next(error) }
@@ -61,12 +61,16 @@ const logout = async (req, res, next) => {
 
 const refreshToken = async (req, res, next) => {
   try {
+    if (!req.cookies?.refreshToken) {
+      return next(new ApiError(StatusCodes.FORBIDDEN, 'No refresh token found!'))
+    }
     const result = await userService.refreshToken(req.cookies?.refreshToken)
     res.cookie('accessToken', result.accessToken, {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
-      maxAge: ms('14 days')
+      maxAge: ms('14 days'),
+      path: '/'
     })
 
     res.status(StatusCodes.OK).json(result)
@@ -79,7 +83,7 @@ const update = async (req, res, next) => {
   try {
     const userId = req.jwtDecoded._id
     const userAvatarFile = req.file
-    console.log('Controller > userAvatarFile: ', userAvatarFile)
+    // console.log('Controller > userAvatarFile: ', userAvatarFile)
     const updatedUser = await userService.update(userId, req.body, userAvatarFile)
     res.status(StatusCodes.OK).json(updatedUser)
   } catch (error) { next(error) }
